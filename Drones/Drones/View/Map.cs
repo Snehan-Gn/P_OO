@@ -8,10 +8,11 @@ namespace ZombieSurvivor
         private Player player;
         private System.Windows.Forms.Timer gameTimer;
 
-        private bool keyW = false;  // Up
-        private bool keyS = false;  // Down
-        private bool keyA = false;  // Left
-        private bool keyD = false;  // Right
+        private bool keyW = false; 
+        private bool keyS = false; 
+        private bool keyA = false;  
+        private bool keyD = false;  
+        private bool dash = false;
 
         public Map()
         {
@@ -30,10 +31,14 @@ namespace ZombieSurvivor
         }
 
         private void GameTimer_Tick(object sender, EventArgs e)
-        { 
-            player.Update(keyW, keyS, keyA, keyD);
+        {
+            float deltaTime = gameTimer.Interval / 1000f;
+
+            player.Update(keyW, keyS, keyA, keyD, dash,deltaTime);
 
             player.ClampToScreen(this.ClientSize.Width, this.ClientSize.Height);
+
+            dash = false;
 
             this.Invalidate();
         }
@@ -68,6 +73,9 @@ namespace ZombieSurvivor
                     break;
                 case Keys.D:
                     keyD = true;
+                    break;
+                case Keys.Space:
+                    dash = true;
                     break;
             }
         }

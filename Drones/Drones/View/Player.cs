@@ -15,12 +15,10 @@ namespace ZombieSurvivor.View
             playerModel = player;
         }
 
-        // Draw the player on the screen
         public void Draw(Graphics graphics)
         {
             if (playerModel == null) return;
 
-            // For now, draw a simple white rectangle
             Brush playerBrush = new SolidBrush(Color.White);
             graphics.FillRectangle(playerBrush,
                                  playerModel._x,
@@ -28,7 +26,6 @@ namespace ZombieSurvivor.View
                                  playerModel.Width,
                                  playerModel.Height);
 
-            // Add a black border
             Pen borderPen = new Pen(Color.Black, 2);
             graphics.DrawRectangle(borderPen,
                                  playerModel._x,
