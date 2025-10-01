@@ -90,6 +90,20 @@ namespace ZombieSurvivor.Model
             }
         }
 
+        public void TakeDamage(int damage)
+        {
+            _health -= damage;
+            if (_health < 0) _health = 0;
+        }
+
+        public bool IsColliding(Mob mob)
+        {
+            return _x < mob._x + mob.Width &&
+                   _x + Width > mob._x &&
+                   _y < mob._y + mob.Height &&
+                   _y + Height > mob._y;
+        }
+
         public void ClampToScreen(int screenWidth, int screenHeight)
         {
             if (_x < 0) _x = 0;
