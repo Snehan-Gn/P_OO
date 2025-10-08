@@ -88,6 +88,7 @@ namespace ZombieSurvivor
             g.Clear(Color.DarkBlue);
 
             Brush playerBrush = new SolidBrush(Color.White);
+
             g.FillRectangle(playerBrush, player._x, player._y, player.Width, player.Height);
 
             using (Brush mobBrush = new SolidBrush(Color.Red))
