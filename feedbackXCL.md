@@ -22,23 +22,29 @@
 
 Les valeurs possibles du résultat sont: LA (Largement Acquis), A (Acquis), I (Insuffisant), NA (non acquis)
 
-| Critère                    | Résultat | Commentaire |
-| -------------------------- | -------- | ----------- |
-| Avancement Obstacles       |          |             |
-| Avancement Joueur          |          |             |
-| Avancement Tirs            |          |             |
-| Avancement ennemis         |          |             |
-| Avancement score           |          |             |
-| Qualité Présentation       |          |             |
-| Qualité Commentaires       |          |             |
-| Qualité Conventions        |          |             |
-| POO                        |          |             |
-| Processus Journal          |          |             |
-| Processus Git              |          |             |
-| Processus Livraison        |          |             |
-| Expression User Stories    |          |             |
-| Expression Rapport Fome    |          |             |
-| Expression Rapport Contenu |          |             |
-| Ecologie (gitignore)       |          |             |
-| Comportement collectif     |          |             |
-| Comportement individuel    |          |             |
+| Critère                    | Résultat | Commentaire                                                                                                                                                                                                                                                         |
+| -------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Avancement Obstacles       | NA       | il n'y a rien                                                                                                                                                                                                                                                       |
+| Avancement Joueur          | A        |                                                                                                                                                                                                                                                                     |
+| Avancement Tirs            | NA       | il n'y a rien                                                                                                                                                                                                                                                       |
+| Avancement ennemis         | A        |                                                                                                                                                                                                                                                                     |
+| Avancement score           | NA       | il n'y a rien                                                                                                                                                                                                                                                       |
+| Qualité Présentation       | A        |                                                                                                                                                                                                                                                                     |
+| Qualité Commentaires       | I        |                                                                                                                                                                                                                                                                     |
+| Qualité Conventions        | I        | il y a des propriétés publiques mal nommée (_x).<br> Le terme de Drône doit absolument disparaître de votre code. Le terme de Drone doit absolument disparaître de votre code.                                                                                      |
+| POO                        | A        |                                                                                                                                                                                                                                                                     |
+| Processus Journal          | A        | veillez à ce que votre journal ne contienne pas de page et/où ligne vide que vous le livrez                                                                                                                                                                         |
+| Processus Git              | A        | attention à ne mettre qu'une seule chose par commit (atomicité)                                                                                                                                                                                                     |
+| Processus Livraison        | LA       |                                                                                                                                                                                                                                                                     |
+| Expression User Stories    | I        | soit vous ajoutez vos maquettes dans les user Story sur GitHub et vous y faites référence de votre document d'analyse fonctionnelle, soit vous reprenez le texte exact de vos stories de GitHub dans votre analyse fonctionnelle ainsi que les tests de acceptance. |
+| Expression Rapport Forme   | A        |                                                                                                                                                                                                                                                                     |
+| Expression Rapport Contenu | I        | le rapport doit encore être complété de manière significative. <br>Attention : le diagramme que vous avez mis n'est pas un diagramme de classes UML, comme demandé                                                                                                  |
+| Ecologie (gitignore)       | A        |                                                                                                                                                                                                                                                                     |
+| Comportement collectif     | A        |                                                                                                                                                                                                                                                                     |
+| Comportement individuel    | A        |                                                                                                                                                                                                                                                                     |
+
+Il manque encore beaucoup de choses de votre projet. 
+Les quatre périodes des dispositions. La semaine prochaine ne suffiront certainement pas à combler ce retard.
+
+Je pourrais toutefois vous accorder un délai supplémentaire si l'avance durant ce temps est significative et vous rapproche suffisamment du but.
+ La priorité est à mettre sur le fonctionnel. L'aspect visuel est secondaire.
