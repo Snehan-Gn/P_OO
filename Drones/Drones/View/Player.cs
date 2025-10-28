@@ -23,15 +23,15 @@ namespace ZombieSurvivor.View
             graphics.FillRectangle(playerBrush,
                                  playerModel._x,
                                  playerModel._y,
-                                 playerModel.Width,
-                                 playerModel.Height);
+                                 playerModel._width,
+                                 playerModel._height);
 
             Pen borderPen = new Pen(Color.Black, 2);
             graphics.DrawRectangle(borderPen,
                                  playerModel._x,
                                  playerModel._y,
-                                 playerModel.Width,
-                                 playerModel.Height);
+                                 playerModel._width,
+                                 playerModel._height);
 
             playerBrush.Dispose();
             borderPen.Dispose();

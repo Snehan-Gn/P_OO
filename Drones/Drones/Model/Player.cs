@@ -11,8 +11,8 @@ namespace ZombieSurvivor.Model
         public float _x { get; set; }
         public float _y { get; set; }
 
-        public int Width { get; set; } = 32;
-        public int Height { get; set; } = 32;
+        public int _width { get; set; } = 32;
+        public int _height { get; set; } = 32;
 
         public float _speed { get; set; } = 5f;
         public int _health { get; set; }
@@ -27,6 +27,12 @@ namespace ZombieSurvivor.Model
 
         private float _dashDirX = 0;
         private float _dashDirY = 0;
+
+        public List<Weapon> Weapons = new List<Weapon>();
+        public List<Bullet> Bullets = new List<Bullet>();
+
+        public float _dirX { get; private set; } = 0f;
+        public float _dirY { get; private set; } = -1f;
 
         public Player(float x, float y, int health)
         {
@@ -51,11 +57,11 @@ namespace ZombieSurvivor.Model
             if (moveUp) deltaY -= _speed;
             if (moveDown) deltaY += _speed;
 
-            if (deltaX != 0 && deltaY != 0)
+            if (deltaX != 0 || deltaY != 0)
             {
-                float diagonalSpeed = _speed * 0.707f;
-                deltaX = deltaX > 0 ? diagonalSpeed : -diagonalSpeed;
-                deltaY = deltaY > 0 ? diagonalSpeed : -diagonalSpeed;
+                float length = (float)Math.Sqrt(deltaX * deltaX + deltaY * deltaY);
+                _dirX = deltaX / length;
+                _dirY = deltaY / length;
             }
 
             if (dash && !_isDashing && _cooldownTimer <= 0 && (deltaX != 0 || deltaY != 0))
@@ -88,6 +94,9 @@ namespace ZombieSurvivor.Model
             {
                 _cooldownTimer -= deltaTime;
             }
+
+            Shoot(deltaTime);
+
         }
 
         public void TakeDamage(int damage)
@@ -99,17 +108,24 @@ namespace ZombieSurvivor.Model
         public bool IsColliding(Mob mob)
         {
             return _x < mob._x + mob.Width &&
-                   _x + Width > mob._x &&
+                   _x + _width > mob._x &&
                    _y < mob._y + mob.Height &&
-                   _y + Height > mob._y;
+                   _y + _height > mob._y;
         }
+
+        public void Shoot(float deltaTime)
+        {
+            foreach (var weapon in Weapons)
+                weapon.Shoot(_x + _width / 2, _y + _height / 2, Bullets, deltaTime, _dirX, _dirY);
+        }
+
 
         public void ClampToScreen(int screenWidth, int screenHeight)
         {
             if (_x < 0) _x = 0;
             if (_y < 0) _y = 0;
-            if (_x + Width > screenWidth) _x = screenWidth - Width;
-            if (_y + Height > screenHeight) _y = screenHeight - Height;
+            if (_x + _width > screenWidth) _x = screenWidth - _width;
+            if (_y + _height > screenHeight) _y = screenHeight - _height;
         }
     }
 }

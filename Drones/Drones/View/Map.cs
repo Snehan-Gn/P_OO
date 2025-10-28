@@ -31,6 +31,7 @@ namespace ZombieSurvivor
         private void InitializeGame()
         {
             player = new Player(this.ClientSize.Width / 2, this.ClientSize.Height / 2, 100);
+            player.Weapons.Add(new Gun());
 
             gameTimer = new System.Windows.Forms.Timer();
             gameTimer.Interval = 16; 
@@ -67,8 +68,16 @@ namespace ZombieSurvivor
                 }
             }
 
-
             dash = false;
+
+            foreach (var bullet in player.Bullets)
+            {
+                bullet.Update(); 
+            }
+
+            player.Bullets.RemoveAll(b =>
+                b._x < -b._width || b._y < -b._height || b._x > this.ClientSize.Width + b._width || b._y > this.ClientSize.Height + b._height
+            );
 
             this.Invalidate();
         }
@@ -89,7 +98,7 @@ namespace ZombieSurvivor
 
             Brush playerBrush = new SolidBrush(Color.White);
 
-            g.FillRectangle(playerBrush, player._x, player._y, player.Width, player.Height);
+            g.FillRectangle(playerBrush, player._x, player._y, player._width, player._height);
 
             using (Brush mobBrush = new SolidBrush(Color.Red))
             
@@ -107,6 +116,21 @@ namespace ZombieSurvivor
 
             string controlsText = "Contrôles: WASD pour se déplacer";
             g.DrawString(controlsText, this.Font, Brushes.Yellow, 10, 10);
+
+            using (Brush bulletBrush = new SolidBrush(Color.DeepSkyBlue))
+            {
+                foreach (var bullet in player.Bullets)
+                {
+                    g.FillEllipse(bulletBrush, bullet._x - bullet.Radius, bullet._y - bullet.Radius, bullet._width, bullet._height);
+                }
+            }
+            using (Pen glowPen = new Pen(Color.LightBlue, 1.5f))
+            {
+                foreach (var bullet in player.Bullets)
+                {
+                    g.DrawEllipse(glowPen, bullet._x - bullet.Radius, bullet._y - bullet.Radius, bullet._width, bullet._height);
+                }
+            }
 
             playerBrush.Dispose();
         }
