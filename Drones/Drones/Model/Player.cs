@@ -30,6 +30,7 @@ namespace ZombieSurvivor.Model
 
         public List<Weapon> Weapons = new List<Weapon>();
         public List<Bullet> Bullets = new List<Bullet>();
+        public List<Beam> _beams = new List<Beam>();
 
         public float _dirX { get; private set; } = 0f;
         public float _dirY { get; private set; } = -1f;
@@ -116,7 +117,7 @@ namespace ZombieSurvivor.Model
         public void Shoot(float deltaTime)
         {
             foreach (var weapon in Weapons)
-                weapon.Shoot(_x + _width / 2, _y + _height / 2, Bullets, deltaTime, _dirX, _dirY);
+                weapon.Shoot(_x + _width / 2, _y + _height / 2, Bullets, deltaTime, _dirX, _dirY, _beams);
         }
 
 

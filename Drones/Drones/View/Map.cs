@@ -32,6 +32,7 @@ namespace ZombieSurvivor
         {
             player = new Player(this.ClientSize.Width / 2, this.ClientSize.Height / 2, 100);
             player.Weapons.Add(new Gun());
+            player.Weapons.Add(new DiagonalLaserBeamGun());
 
             gameTimer = new System.Windows.Forms.Timer();
             gameTimer.Interval = 16; 
@@ -79,6 +80,14 @@ namespace ZombieSurvivor
                 b._x < -b._width || b._y < -b._height || b._x > this.ClientSize.Width + b._width || b._y > this.ClientSize.Height + b._height
             );
 
+            foreach (var beam in player._beams)
+            {
+                beam.UpdatePosition(player._x + player._width / 2, player._y + player._height / 2);
+                beam._lifetime -= deltaTime;
+            }
+
+            player._beams.RemoveAll(b => b._lifetime <= 0f); 
+
             this.Invalidate();
         }
 
@@ -117,20 +126,28 @@ namespace ZombieSurvivor
             string controlsText = "Contrôles: WASD pour se déplacer";
             g.DrawString(controlsText, this.Font, Brushes.Yellow, 10, 10);
 
-            using (Brush bulletBrush = new SolidBrush(Color.DeepSkyBlue))
+            foreach (var bullet in player.Bullets)
             {
-                foreach (var bullet in player.Bullets)
+                g.FillEllipse(Brushes.Blue, bullet._x - 2, bullet._y - 2, 4, 4);
+            }
+
+
+            foreach (var beam in player._beams)
+            {
+                using (Pen p = new Pen(beam._color, 3))
                 {
-                    g.FillEllipse(bulletBrush, bullet._x - bullet.Radius, bullet._y - bullet.Radius, bullet._width, bullet._height);
+                    g.DrawLine(p, beam._startX, beam._startY, beam._endX, beam._endY);
                 }
             }
+
             using (Pen glowPen = new Pen(Color.LightBlue, 1.5f))
             {
                 foreach (var bullet in player.Bullets)
                 {
-                    g.DrawEllipse(glowPen, bullet._x - bullet.Radius, bullet._y - bullet.Radius, bullet._width, bullet._height);
+                    g.DrawEllipse(glowPen, bullet._x - bullet._radius, bullet._y - bullet._radius, bullet._width, bullet._height);
                 }
             }
+
 
             playerBrush.Dispose();
         }
