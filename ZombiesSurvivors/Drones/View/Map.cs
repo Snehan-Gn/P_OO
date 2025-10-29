@@ -86,7 +86,26 @@ namespace ZombieSurvivor
                 beam._lifetime -= deltaTime;
             }
 
-            player._beams.RemoveAll(b => b._lifetime <= 0f); 
+            player._beams.RemoveAll(b => b._lifetime <= 0f);
+
+            foreach (var bullet in player.Bullets.ToList()) 
+            {
+                foreach (var mob in mobs.ToList())
+                {
+                    if (bullet._x < mob._x + mob.Width &&
+                        bullet._x + bullet._width > mob._x &&
+                        bullet._y < mob._y + mob.Height &&
+                        bullet._y + bullet._height > mob._y)
+                    {
+                        mob.TakeDamage(bullet._damage);
+                        player.Bullets.Remove(bullet); 
+
+                        if (mob._health <= 0)
+                            mobs.Remove(mob); 
+                        break; 
+                    }
+                }
+            }
 
             this.Invalidate();
         }

@@ -62,6 +62,11 @@ namespace ZombieSurvivor.Model
             _y += dy * _speed;
         }
 
+        public void TakeDamage(float damage)
+        {
+            _health -= (int)damage;
+        }
+
         public void ClampToScreen(int screenWidth, int screenHeight)
         {
             if (_x < 0) _x = 0;
