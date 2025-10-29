@@ -14,6 +14,9 @@ namespace ZombieSurvivor
 
             Map gameMap = new Map();
             Application.Run(gameMap);
+
+
+            Console.WriteLine(Math.Pow(2, 3));
         }
     }
 }
