@@ -16,6 +16,9 @@ namespace ZombieSurvivor.Model
 
         public float _speed { get; set; } = 5f;
         public int _health { get; set; }
+        public int _level { get; set; } = 1;
+        public int _xp { get; set; } = 0;
+        public int _xp_require { get; set; } = 100;
 
         private bool _isDashing = false;
         private float _dashSpeed = 15f;
@@ -120,7 +123,21 @@ namespace ZombieSurvivor.Model
                 weapon.Shoot(_x + _width / 2, _y + _height / 2, Bullets, deltaTime, _dirX, _dirY, _beams);
         }
 
+        public void LevelUp(int _xp_to_add)
+        {
+            _xp += _xp_to_add;
+            if (_xp >= _xp_require)
+            {
+                _level++;
+                _xp -= _xp_require;
+                _health += 20;
 
+                foreach (var weapon in Weapons)
+                {
+                    weapon._damage += 5;
+                }
+            }
+        }
         public void ClampToScreen(int screenWidth, int screenHeight)
         {
             if (_x < 0) _x = 0;

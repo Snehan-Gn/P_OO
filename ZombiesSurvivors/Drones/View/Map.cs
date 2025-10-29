@@ -98,10 +98,13 @@ namespace ZombieSurvivor
                         bullet._y + bullet._height > mob._y)
                     {
                         mob.TakeDamage(bullet._damage);
-                        player.Bullets.Remove(bullet); 
+                        player.Bullets.Remove(bullet);
 
                         if (mob._health <= 0)
-                            mobs.Remove(mob); 
+                        {
+                            mobs.Remove(mob);
+                            player.LevelUp(mob._xpValue);
+                        }
                         break; 
                     }
                 }
@@ -115,10 +118,14 @@ namespace ZombieSurvivor
             int barWidth = 200;
             int barHeight = 20;
             int barX = 10;
-            int barY = 40;
+            int healthBarY = 40;
+            int xpBarY = 60;
 
             float healthPercent = (float)player._health / 100f;
             int healthWidth = (int)(barWidth * healthPercent);
+
+            float xpPercent = (float)player._xp / 100f;
+            int xpWidth = (int)(barWidth * xpPercent);
 
             Graphics g = e.Graphics;
 
@@ -136,11 +143,17 @@ namespace ZombieSurvivor
             }
 
 
-            g.FillRectangle(Brushes.Red, barX, barY, barWidth, barHeight);
+            g.FillRectangle(Brushes.Red, barX, healthBarY, barWidth, barHeight);
             
-            g.FillRectangle(Brushes.Green, barX, barY, healthWidth, barHeight);
+            g.FillRectangle(Brushes.Green, barX, healthBarY, healthWidth, barHeight);
 
-            g.DrawRectangle(Pens.Black, barX, barY, barWidth, barHeight);
+            g.DrawRectangle(Pens.Black, barX, healthBarY, barWidth, barHeight);
+
+            g.FillRectangle(Brushes.Black, barX, xpBarY, barWidth, barHeight);
+
+            g.FillRectangle(Brushes.LightBlue, barX, xpBarY, xpWidth, barHeight);
+
+            g.DrawRectangle(Pens.Black, barX, xpBarY, barWidth, barHeight );
 
             string controlsText = "Contrôles: WASD pour se déplacer";
             g.DrawString(controlsText, this.Font, Brushes.Yellow, 10, 10);

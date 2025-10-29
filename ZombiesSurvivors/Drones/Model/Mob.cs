@@ -18,6 +18,8 @@ namespace ZombieSurvivor.Model
         public float _speed { get; set; } = 2f;
         public int _health { get; set; } = 50;
 
+        public int _xpValue { get; set; } = 5;
+
         public Mob(int screenWidth, int screenHeight)
         {
             int side = GlobalHelpers.alea.Next(0, 4);
