@@ -7,6 +7,9 @@ namespace ZombieSurvivor
         private Player player;
         private List<Mob> mobs = new List<Mob>();
         private List<Bullet> enemyBullets = new List<Bullet>();
+        private List<Obstacle> obstacles = new List<Obstacle>();
+        private List<HealthPickup> pickups = new List<HealthPickup>();
+
         private System.Windows.Forms.Timer gameTimer;
 
         private int worldWidth = 2000;
@@ -38,6 +41,14 @@ namespace ZombieSurvivor
             player = new Player(worldWidth / 2, worldHeight / 2, 100);
             player.Weapons.Add(new Gun());
             player.Weapons.Add(new DiagonalLaserBeamGun());
+
+            Random rand = new Random();
+            for (int i = 0; i < 5; i++)
+            {
+                float ox = rand.Next(0, 2000); 
+                float oy = rand.Next(0, 2000); 
+                obstacles.Add(new Obstacle(ox, oy));
+            }
 
             gameTimer = new System.Windows.Forms.Timer();
             gameTimer.Interval = 16;
@@ -141,6 +152,38 @@ namespace ZombieSurvivor
                         break;
                     }
                 }
+
+                foreach (var obs in obstacles.ToList())
+                {
+                    if (bullet._x < obs._x + obs.Width &&
+                        bullet._x + bullet._width > obs._x &&
+                        bullet._y < obs._y + obs.Height &&
+                        bullet._y + bullet._height > obs._y)
+                    {
+                        obs.TakeDamage((int)bullet._damage);
+                        player.Bullets.Remove(bullet);
+
+                        if (obs.IsDestroyed)
+                        {
+                            pickups.Add(new HealthPickup(obs._x + obs.Width / 2 - 5, obs._y + obs.Height / 2 - 5));
+                            obstacles.Remove(obs);
+                        }
+                        break;
+                    }
+                }
+            }
+
+            foreach (var p in pickups.ToList())
+            {
+                if (player._x < p._x + p._size &&
+                    player._x + player._width > p._x &&
+                    player._y < p._y + p._size &&
+                    player._y + player._height > p._y)
+                {
+                    player._health += p._amount;
+                    if (player._health > 100) player._health = 100;
+                    pickups.Remove(p);
+                }
             }
 
             UpdateCamera();
@@ -204,6 +247,18 @@ namespace ZombieSurvivor
             g.DrawRectangle(Pens.Black, barX, xpBarY, barWidth, barHeight);
 
             g.DrawString("Contrôles: WASD pour se déplacer", this.Font, Brushes.Yellow, 10, 10);
+
+            using (Brush obsBrush = new SolidBrush(Color.Brown))
+            {
+                foreach (var obs in obstacles)
+                    g.FillRectangle(obsBrush, obs._x - cameraX, obs._y - cameraY, obs.Width, obs.Height);
+            }
+
+            using (Brush pickupBrush = new SolidBrush(Color.Green))
+            {
+                foreach (var p in pickups)
+                    g.FillRectangle(pickupBrush, p._x - cameraX, p._y - cameraY, p._size, p._size);
+            }
         }
 
         private void Map_KeyDown(object sender, KeyEventArgs e)
