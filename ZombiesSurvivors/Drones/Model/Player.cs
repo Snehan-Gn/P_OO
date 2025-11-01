@@ -138,12 +138,12 @@ namespace ZombieSurvivor.Model
                 }
             }
         }
-        public void ClampToScreen(int screenWidth, int screenHeight)
+        public void ClampToWorld(int worldWidth, int worldHeight)
         {
             if (_x < 0) _x = 0;
             if (_y < 0) _y = 0;
-            if (_x + _width > screenWidth) _x = screenWidth - _width;
-            if (_y + _height > screenHeight) _y = screenHeight - _height;
+            if (_x + _width > worldWidth) _x = worldWidth - _width;
+            if (_y + _height > worldHeight) _y = worldHeight - _height;
         }
     }
 }
