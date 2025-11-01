@@ -64,6 +64,7 @@ namespace ZombieSurvivor
 
             player.Update(keyW, keyS, keyA, keyD, dash, deltaTime);
             player.ClampToWorld(worldWidth, worldHeight);
+            player.ClampAgainstObstacles(obstacles);
 
             mobSpawnTimer += deltaTime;
             if (mobSpawnTimer >= mobSpawnInterval && mobs.Count < maxMobs)
@@ -87,6 +88,7 @@ namespace ZombieSurvivor
                 {
                     mob.MoveTowards(player._x, player._y);
                     mob.ClampToScreen(worldWidth, worldHeight);
+                    mob.ClampAgainstObstacles(obstacles);
                 }
 
                 if (player.IsColliding(mob) && damageCooldown <= 0f)
@@ -186,6 +188,7 @@ namespace ZombieSurvivor
                 }
             }
 
+
             UpdateCamera();
             this.Invalidate();
         }
@@ -257,7 +260,7 @@ namespace ZombieSurvivor
             using (Brush pickupBrush = new SolidBrush(Color.Green))
             {
                 foreach (var p in pickups)
-                    g.FillRectangle(pickupBrush, p._x - cameraX, p._y - cameraY, p._size, p._size);
+                    g.FillRectangle(pickupBrush, p._x - cameraX, p._y - cameraY, p._size, p._size); 
             }
         }
 

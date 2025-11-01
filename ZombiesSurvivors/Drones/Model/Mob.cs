@@ -76,5 +76,35 @@ namespace ZombieSurvivor.Model
             if (_x + Width > screenWidth) _x = screenWidth - Width;
             if (_y + Height > screenHeight) _y = screenHeight - Height;
         }
+
+        public void ClampAgainstObstacles(List<Obstacle> obstacles)
+        {
+            foreach (var obs in obstacles)
+            {
+                if (_x < obs._x + obs.Width &&
+                    _x + Width > obs._x &&
+                    _y < obs._y + obs.Height &&
+                    _y + Height > obs._y)
+                {
+                    float overlapX = Math.Min(_x + Width - obs._x, obs._x + obs.Width - _x);
+                    float overlapY = Math.Min(_y + Height - obs._y, obs._y + obs.Height - _y);
+
+                    if (overlapX < overlapY)
+                    {
+                        if (_x + Width / 2 < obs._x + obs.Width / 2)
+                            _x -= overlapX;
+                        else
+                            _x += overlapX;
+                    }
+                    else
+                    {
+                        if (_y + Height / 2 < obs._y + obs.Height / 2)
+                            _y -= overlapY;
+                        else
+                            _y += overlapY;
+                    }
+                }
+            }
+        }
     }
 }
