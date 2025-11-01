@@ -6,6 +6,7 @@ namespace ZombieSurvivor
     {
         private Player player;
         private List<Mob> mobs = new List<Mob>();
+        private List<Bullet> enemyBullets = new List<Bullet>();
         private System.Windows.Forms.Timer gameTimer;
 
         private int worldWidth = 2000;
@@ -56,14 +57,26 @@ namespace ZombieSurvivor
             mobSpawnTimer += deltaTime;
             if (mobSpawnTimer >= mobSpawnInterval && mobs.Count < maxMobs)
             {
-                mobs.Add(new Mob(worldWidth, worldHeight));
+                int roll = GlobalHelpers.alea.Next(0, 3);
+                if (roll < 2)
+                    mobs.Add(new Mob(worldWidth, worldHeight));
+                else
+                    mobs.Add(new RangedMob(worldWidth, worldHeight));
                 mobSpawnTimer = 0f;
             }
 
-            foreach (var mob in mobs)
+            foreach (var mob in mobs.ToList())
             {
-                mob.MoveTowards(player._x, player._y);
-                mob.ClampToScreen(worldWidth, worldHeight);
+                if (mob is RangedMob ranged)
+                {
+                    ranged.Update(player, enemyBullets, deltaTime);
+                    ranged.ClampToScreen(worldWidth, worldHeight);
+                }
+                else
+                {
+                    mob.MoveTowards(player._x, player._y);
+                    mob.ClampToScreen(worldWidth, worldHeight);
+                }
 
                 if (player.IsColliding(mob) && damageCooldown <= 0f)
                 {
@@ -75,13 +88,30 @@ namespace ZombieSurvivor
             dash = false;
 
             foreach (var bullet in player.Bullets)
-            {
                 bullet.Update();
-            }
 
             player.Bullets.RemoveAll(b =>
                 b._x < -b._width || b._y < -b._height || b._x > worldWidth + b._width || b._y > worldHeight + b._height
             );
+
+            foreach (var bullet in enemyBullets)
+                bullet.Update();
+
+            enemyBullets.RemoveAll(b =>
+                b._x < -b._width || b._y < -b._height || b._x > worldWidth + b._width || b._y > worldHeight + b._height
+            );
+
+            foreach (var bullet in enemyBullets.ToList())
+            {
+                if (player._x < bullet._x + bullet._width &&
+                    player._x + player._width > bullet._x &&
+                    player._y < bullet._y + bullet._height &&
+                    player._y + player._height > bullet._y)
+                {
+                    player.TakeDamage((int)bullet._damage);
+                    enemyBullets.Remove(bullet);
+                }
+            }
 
             foreach (var beam in player._beams)
             {
@@ -114,7 +144,6 @@ namespace ZombieSurvivor
             }
 
             UpdateCamera();
-
             this.Invalidate();
         }
 
@@ -142,16 +171,28 @@ namespace ZombieSurvivor
             int xpWidth = (int)(barWidth * xpPercent);
 
             Graphics g = e.Graphics;
-
             g.Clear(Color.DarkBlue);
 
-            Brush playerBrush = new SolidBrush(Color.White);
-            g.FillRectangle(playerBrush, player._x - cameraX, player._y - cameraY, player._width, player._height);
-
-            using (Brush mobBrush = new SolidBrush(Color.Red))
+            foreach (var mob in mobs)
             {
-                foreach (var mob in mobs)
-                    g.FillRectangle(mobBrush, mob._x - cameraX, mob._y - cameraY, mob.Width, mob.Height);
+                if (mob is RangedMob)
+                    g.FillRectangle(Brushes.OrangeRed, mob._x - cameraX, mob._y - cameraY, mob.Width, mob.Height);
+                else
+                    g.FillRectangle(Brushes.Red, mob._x - cameraX, mob._y - cameraY, mob.Width, mob.Height);
+            }
+
+            g.FillRectangle(Brushes.White, player._x - cameraX, player._y - cameraY, player._width, player._height);
+
+            foreach (var bullet in player.Bullets)
+                g.FillEllipse(Brushes.Blue, bullet._x - bullet._radius - cameraX, bullet._y - bullet._radius - cameraY, bullet._width, bullet._height);
+
+            foreach (var bullet in enemyBullets)
+                g.FillEllipse(Brushes.Red, bullet._x - bullet._radius - cameraX, bullet._y - bullet._radius - cameraY, bullet._width, bullet._height);
+
+            foreach (var beam in player._beams)
+            {
+                using (Pen p = new Pen(beam._color, 3))
+                    g.DrawLine(p, beam._startX - cameraX, beam._startY - cameraY, beam._endX - cameraX, beam._endY - cameraY);
             }
 
             g.FillRectangle(Brushes.Red, barX, healthBarY, barWidth, barHeight);
@@ -162,25 +203,7 @@ namespace ZombieSurvivor
             g.FillRectangle(Brushes.LightBlue, barX, xpBarY, xpWidth, barHeight);
             g.DrawRectangle(Pens.Black, barX, xpBarY, barWidth, barHeight);
 
-            string controlsText = "Contrôles: WASD pour se déplacer";
-            g.DrawString(controlsText, this.Font, Brushes.Yellow, 10, 10);
-
-            foreach (var bullet in player.Bullets)
-                g.FillEllipse(Brushes.Blue, bullet._x - 2 - cameraX, bullet._y - 2 - cameraY, 4, 4);
-
-            foreach (var beam in player._beams)
-            {
-                using (Pen p = new Pen(beam._color, 3))
-                    g.DrawLine(p, beam._startX - cameraX, beam._startY - cameraY, beam._endX - cameraX, beam._endY - cameraY);
-            }
-
-            using (Pen glowPen = new Pen(Color.LightBlue, 1.5f))
-            {
-                foreach (var bullet in player.Bullets)
-                    g.DrawEllipse(glowPen, bullet._x - bullet._radius - cameraX, bullet._y - bullet._radius - cameraY, bullet._width, bullet._height);
-            }
-
-            playerBrush.Dispose();
+            g.DrawString("Contrôles: WASD pour se déplacer", this.Font, Brushes.Yellow, 10, 10);
         }
 
         private void Map_KeyDown(object sender, KeyEventArgs e)
