@@ -12,27 +12,27 @@ namespace ZombieSurvivor
 
         private System.Windows.Forms.Timer gameTimer;
 
-        private int worldWidth = 2000;
-        private int worldHeight = 2000;
-        private float cameraX = 0;
-        private float cameraY = 0;
+        private int _worldWidth = 2000;
+        private int _worldHeight = 2000;
+        private float _cameraX = 0;
+        private float _cameraY = 0;
 
-        private int maxMobs = 100;
-        private float mobSpawnTimer = 0f;
-        private float mobSpawnInterval = 2f;
+        private int _maxMobs = 100;
+        private float _mobSpawnTimer = 0f;
+        private float _mobSpawnInterval = 2f;
 
-        private float damageCooldown = 0f;
-        private float damageInterval = 0.5f;
+        private float _damageCooldown = 0f;
+        private float _damageInterval = 0.5f;
 
-        private float gameTime = 0f;
-        private bool gameOver = false;
-        private int score = 0;
+        private float _gameTime = 0f;
+        private bool _gameOver = false;
+        private int _score = 0;
 
-        private bool keyW = false;
-        private bool keyS = false;
-        private bool keyA = false;
-        private bool keyD = false;
-        private bool dash = false;
+        private bool _keyW = false;
+        private bool _keyS = false;
+        private bool _keyA = false;
+        private bool _keyD = false;
+        private bool _dash = false;
 
         public Map()
         {
@@ -49,13 +49,13 @@ namespace ZombieSurvivor
             obstacles.Clear();
             pickups.Clear();
 
-            gameOver = false;
-            gameTime = 0f;
-            score = 0;
-            mobSpawnTimer = 0f;
-            damageCooldown = 0f;
+            _gameOver = false;
+            _gameTime = 0f;
+            _score = 0;
+            _mobSpawnTimer = 0f;
+            _damageCooldown = 0f;
 
-            player = new Player(worldWidth / 2, worldHeight / 2, 100);
+            player = new Player(_worldWidth / 2, _worldHeight / 2, 100);
             player.Weapons.Clear();
             player.Weapons.Add(new Gun());
             //player.Weapons.Add(new DiagonalLaserBeamGun());
@@ -65,8 +65,8 @@ namespace ZombieSurvivor
             Random rand = new Random();
             for (int i = 0; i < 5; i++)
             {
-                float ox = rand.Next(0, worldWidth - 64);
-                float oy = rand.Next(0, worldHeight - 64);
+                float ox = rand.Next(0, _worldWidth - 64);
+                float oy = rand.Next(0, _worldHeight - 64);
                 obstacles.Add(new Obstacle(ox, oy));
             }
 
@@ -81,24 +81,24 @@ namespace ZombieSurvivor
         {
             float deltaTime = gameTimer.Interval / 1000f;
 
-            if (gameOver) return;
-            gameTime += deltaTime;
+            if (_gameOver) return;
+            _gameTime += deltaTime;
 
-            damageCooldown -= deltaTime;
+            _damageCooldown -= deltaTime;
 
-            player.Update(keyW, keyS, keyA, keyD, dash, deltaTime);
-            player.ClampToWorld(worldWidth, worldHeight);
+            player.Update(_keyW, _keyS, _keyA, _keyD, _dash, deltaTime);
+            player.ClampToWorld(_worldWidth, _worldHeight);
             player.ClampAgainstObstacles(obstacles);
 
-            mobSpawnTimer += deltaTime;
-            if (mobSpawnTimer >= mobSpawnInterval && mobs.Count < maxMobs)
+            _mobSpawnTimer += deltaTime;
+            if (_mobSpawnTimer >= _mobSpawnInterval && mobs.Count < _maxMobs)
             {
                 int roll = GlobalHelpers.alea.Next(0, 3);
                 if (roll < 2)
-                    mobs.Add(new Mob(worldWidth, worldHeight));
+                    mobs.Add(new Mob(_worldWidth, _worldHeight));
                 else
-                    mobs.Add(new RangedMob(worldWidth, worldHeight));
-                mobSpawnTimer = 0f;
+                    mobs.Add(new RangedMob(_worldWidth, _worldHeight));
+                _mobSpawnTimer = 0f;
             }
 
             foreach (var mob in mobs.ToList())
@@ -106,75 +106,75 @@ namespace ZombieSurvivor
                 if (mob is RangedMob ranged)
                 {
                     ranged.Update(player, enemyBullets, deltaTime);
-                    ranged.ClampToScreen(worldWidth, worldHeight);
+                    ranged.ClampToScreen(_worldWidth, _worldHeight);
                 }
                 else
                 {
-                    mob.MoveTowards(player._x, player._y);
-                    mob.ClampToScreen(worldWidth, worldHeight);
+                    mob.MoveTowards(player.x, player.y);
+                    mob.ClampToScreen(_worldWidth, _worldHeight);
                     mob.ClampAgainstObstacles(obstacles);
                 }
 
-                if (player.IsColliding(mob) && damageCooldown <= 0f)
+                if (player.IsColliding(mob) && _damageCooldown <= 0f)
                 {
                     player.TakeDamage(10);
-                    damageCooldown = damageInterval;
+                    _damageCooldown = _damageInterval;
                 }
             }
 
-            dash = false;
+            _dash = false;
 
             foreach (var bullet in player.Bullets)
                 bullet.Update();
 
             player.Bullets.RemoveAll(b =>
-                b._x < -b._width || b._y < -b._height || b._x > worldWidth + b._width || b._y > worldHeight + b._height
+                b.x < -b.width || b.y < -b.height || b.x > _worldWidth + b.width || b.y > _worldHeight + b.height
             );
 
             foreach (var bullet in enemyBullets)
                 bullet.Update();
 
             enemyBullets.RemoveAll(b =>
-                b._x < -b._width || b._y < -b._height || b._x > worldWidth + b._width || b._y > worldHeight + b._height
+                b.x < -b.width || b.y < -b.height || b.x > _worldWidth + b.width || b.y > _worldHeight + b.height
             );
 
             foreach (var bullet in enemyBullets.ToList())
             {
-                if (player._x < bullet._x + bullet._width &&
-                    player._x + player._width > bullet._x &&
-                    player._y < bullet._y + bullet._height &&
-                    player._y + player._height > bullet._y)
+                if (player.x < bullet.x + bullet.width &&
+                    player.x + player.width > bullet.x &&
+                    player.y < bullet.y + bullet.height &&
+                    player.y + player.height > bullet.y)
                 {
-                    player.TakeDamage((int)bullet._damage);
+                    player.TakeDamage((int)bullet.damage);
                     enemyBullets.Remove(bullet);
                 }
             }
 
             foreach (var beam in player._beams)
             {
-                beam.UpdatePosition(player._x + player._width / 2, player._y + player._height / 2);
-                beam._lifetime -= deltaTime;
+                beam.UpdatePosition(player.x + player.width / 2, player.y + player.height / 2);
+                beam.lifetime -= deltaTime;
             }
 
-            player._beams.RemoveAll(b => b._lifetime <= 0f);
+            player._beams.RemoveAll(b => b.lifetime <= 0f);
 
             foreach (var bullet in player.Bullets.ToList())
             {
                 foreach (var mob in mobs.ToList())
                 {
-                    if (bullet._x < mob._x + mob.Width &&
-                        bullet._x + bullet._width > mob._x &&
-                        bullet._y < mob._y + mob.Height &&
-                        bullet._y + bullet._height > mob._y)
+                    if (bullet.x < mob.x + mob.Width &&
+                        bullet.x + bullet.width > mob.x &&
+                        bullet.y < mob.y + mob.Height &&
+                        bullet.y + bullet.height > mob.y)
                     {
-                        mob.TakeDamage(bullet._damage);
+                        mob.TakeDamage(bullet.damage);
                         player.Bullets.Remove(bullet);
 
-                        if (mob._health <= 0)
+                        if (mob.health <= 0)
                         {
                             mobs.Remove(mob);
-                            player.LevelUp(mob._xpValue);
-                            score++;
+                            player.LevelUp(mob.xpValue);
+                            _score++;
                         }
                         break;
                     }
@@ -182,17 +182,17 @@ namespace ZombieSurvivor
 
                 foreach (var obs in obstacles.ToList())
                 {
-                    if (bullet._x < obs._x + obs.Width &&
-                        bullet._x + bullet._width > obs._x &&
-                        bullet._y < obs._y + obs.Height &&
-                        bullet._y + bullet._height > obs._y)
+                    if (bullet.x < obs.x + obs.Width &&
+                        bullet.x + bullet.width > obs.x &&
+                        bullet.y < obs.y + obs.Height &&
+                        bullet.y + bullet.height > obs.y)
                     {
-                        obs.TakeDamage((int)bullet._damage);
+                        obs.TakeDamage((int)bullet.damage);
                         player.Bullets.Remove(bullet);
 
                         if (obs.IsDestroyed)
                         {
-                            pickups.Add(new HealthPickup(obs._x + obs.Width / 2 - 5, obs._y + obs.Height / 2 - 5));
+                            pickups.Add(new HealthPickup(obs.x + obs.Width / 2 - 5, obs.y + obs.Height / 2 - 5));
                             obstacles.Remove(obs);
                         }
                         break;
@@ -200,9 +200,9 @@ namespace ZombieSurvivor
                 }
             }
 
-            if (player._health <= 0)
+            if (player.health <= 0)
             {
-                gameOver = true;
+                _gameOver = true;
                 gameTimer.Stop();
                 Invalidate();
                 return;
@@ -210,13 +210,13 @@ namespace ZombieSurvivor
 
             foreach (var p in pickups.ToList())
             {
-                if (player._x < p._x + p._size &&
-                    player._x + player._width > p._x &&
-                    player._y < p._y + p._size &&
-                    player._y + player._height > p._y)
+                if (player.x < p.x + p.size &&
+                    player.x + player.width > p.x &&
+                    player.y < p.y + p.size &&
+                    player.y + player.height > p.y)
                 {
-                    player._health += p._amount;
-                    if (player._health > 100) player._health = 100;
+                    player.health += p.amount;
+                    if (player.health > 100) player.health = 100;
                     pickups.Remove(p);
                 }
             }
@@ -228,11 +228,11 @@ namespace ZombieSurvivor
 
         private void UpdateCamera()
         {
-            cameraX = player._x + player._width / 2 - this.ClientSize.Width / 2;
-            cameraY = player._y + player._height / 2 - this.ClientSize.Height / 2;
+            _cameraX = player.x + player.width / 2 - this.ClientSize.Width / 2;
+            _cameraY = player.y + player.height / 2 - this.ClientSize.Height / 2;
 
-            cameraX = Math.Max(0, Math.Min(cameraX, worldWidth - this.ClientSize.Width));
-            cameraY = Math.Max(0, Math.Min(cameraY, worldHeight - this.ClientSize.Height));
+            _cameraX = Math.Max(0, Math.Min(_cameraX, _worldWidth - this.ClientSize.Width));
+            _cameraY = Math.Max(0, Math.Min(_cameraY, _worldHeight - this.ClientSize.Height));
         }
 
         private void Map_Paint(object sender, PaintEventArgs e)
@@ -244,35 +244,35 @@ namespace ZombieSurvivor
             foreach (var mob in mobs)
             {
                 if (mob is RangedMob)
-                    g.FillRectangle(Brushes.Purple, mob._x - cameraX, mob._y - cameraY, mob.Width, mob.Height);
+                    g.FillRectangle(Brushes.Purple, mob.x - _cameraX, mob.y - _cameraY, mob.Width, mob.Height);
                 else
-                    g.FillRectangle(Brushes.Red, mob._x - cameraX, mob._y - cameraY, mob.Width, mob.Height);
+                    g.FillRectangle(Brushes.Red, mob.x - _cameraX, mob.y - _cameraY, mob.Width, mob.Height);
             }
 
-            g.FillRectangle(Brushes.White, player._x - cameraX, player._y - cameraY, player._width, player._height);
+            g.FillRectangle(Brushes.White, player.x - _cameraX, player.y - _cameraY, player.width, player.height);
 
             foreach (var bullet in player.Bullets)
-                g.FillEllipse(Brushes.Blue, bullet._x - bullet._radius - cameraX, bullet._y - bullet._radius - cameraY, bullet._width, bullet._height);
+                g.FillEllipse(Brushes.Blue, bullet.x - bullet.radius - _cameraX, bullet.y - bullet.radius - _cameraY, bullet.width, bullet.height);
 
             foreach (var bullet in enemyBullets)
-                g.FillEllipse(Brushes.Red, bullet._x - bullet._radius - cameraX, bullet._y - bullet._radius - cameraY, bullet._width, bullet._height);
+                g.FillEllipse(Brushes.Red, bullet.x - bullet.radius - _cameraX, bullet.y - bullet.radius - _cameraY, bullet.width, bullet.height);
 
             foreach (var beam in player._beams)
             {
-                using (Pen p = new Pen(beam._color, 3))
-                    g.DrawLine(p, beam._startX - cameraX, beam._startY - cameraY, beam._endX - cameraX, beam._endY - cameraY);
+                using (Pen p = new Pen(beam.color, 3))
+                    g.DrawLine(p, beam.startX - _cameraX, beam.startY - _cameraY, beam.endX - _cameraX, beam.endY - _cameraY);
             }
 
             using (Brush obsBrush = new SolidBrush(Color.Yellow))
             {
                 foreach (var obs in obstacles)
-                    g.FillRectangle(obsBrush, obs._x - cameraX, obs._y - cameraY, obs.Width, obs.Height);
+                    g.FillRectangle(obsBrush, obs.x - _cameraX, obs.y - _cameraY, obs.Width, obs.Height);
             }
 
             using (Brush pickupBrush = new SolidBrush(Color.Green))
             {
                 foreach (var p in pickups)
-                    g.FillRectangle(pickupBrush, p._x - cameraX, p._y - cameraY, p._size, p._size);
+                    g.FillRectangle(pickupBrush, p.x - _cameraX, p.y - _cameraY, p.size, p.size);
             }
 
             int barWidth = 200;
@@ -281,10 +281,10 @@ namespace ZombieSurvivor
             int healthBarY = 40;
             int xpBarY = 60;
 
-            float healthPercent = (float)player._health / 100f;
+            float healthPercent = (float)player.health / 100f;
             int healthWidth = (int)(barWidth * healthPercent);
 
-            float xpPercent = (float)player._xp / 100f;
+            float xpPercent = (float)player.xp / 100f;
             int xpWidth = (int)(barWidth * xpPercent);
 
             g.FillRectangle(Brushes.Red, barX, healthBarY, barWidth, barHeight);
@@ -297,8 +297,8 @@ namespace ZombieSurvivor
 
             g.DrawString("Contrôles: WASD pour se déplacer et Espace pour le dash", this.Font, Brushes.Yellow, 10, 10);
 
-            string topRightTimeText = $"Time: {Math.Floor(gameTime)}s";
-            string topRightScoreText = $"Score: {score}";
+            string topRightTimeText = $"Time: {Math.Floor(_gameTime)}s";
+            string topRightScoreText = $"Score: {_score}";
             SizeF timeSize = g.MeasureString(topRightTimeText, this.Font);
             SizeF scoreSize = g.MeasureString(topRightScoreText, this.Font);
             float margin = 10f;
@@ -307,11 +307,11 @@ namespace ZombieSurvivor
             g.DrawString(topRightTimeText, this.Font, Brushes.White, x, 10);
             g.DrawString(topRightScoreText, this.Font, Brushes.White, x, 30);
 
-            if (player._health <= 0)
+            if (player.health <= 0)
             {
                 string lostText = "YOU LOST";
-                string lostTimeText = $"Time: {Math.Floor(gameTime)}s";
-                string lostScoreText = $"Score: {score}";
+                string lostTimeText = $"Time: {Math.Floor(_gameTime)}s";
+                string lostScoreText = $"Score: {_score}";
                 string restartText = "Press R to Restart";
 
                 Font bigFont = new Font(this.Font.FontFamily, 48, FontStyle.Bold);
@@ -351,22 +351,22 @@ namespace ZombieSurvivor
             switch (e.KeyCode)
             {
                 case Keys.W:
-                    keyW = true;
+                    _keyW = true;
                     break;
                 case Keys.S:
-                    keyS = true;
+                    _keyS = true;
                     break;
                 case Keys.A:
-                    keyA = true;
+                    _keyA = true;
                     break;
                 case Keys.D:
-                    keyD = true;
+                    _keyD = true;
                     break;
                 case Keys.Space:
-                    dash = true;
+                    _dash = true;
                     break;
                 case Keys.R:
-                    if (gameOver)
+                    if (_gameOver)
                         InitializeGame();
                     break;
             }
@@ -377,16 +377,16 @@ namespace ZombieSurvivor
             switch (e.KeyCode)
             {
                 case Keys.W:
-                    keyW = false;
+                    _keyW = false;
                     break;
                 case Keys.S:
-                    keyS = false;
+                    _keyS = false;
                     break;
                 case Keys.A:
-                    keyA = false;
+                    _keyA = false;
                     break;
                 case Keys.D:
-                    keyD = false;
+                    _keyD = false;
                     break;
             }
         }

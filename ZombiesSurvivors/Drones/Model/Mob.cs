@@ -9,16 +9,16 @@ namespace ZombieSurvivor.Model
 {
     public partial class Mob
     {
-        public float _x {  get; set; }
-        public float _y { get; set; }
+        public float x {  get; set; }
+        public float y { get; set; }
 
         public int Width { get; set; } = 32;
         public int Height { get; set; } = 32;
 
-        public float _speed { get; set; } = 2f;
-        public int _health { get; set; } = 50;
+        public float speed { get; set; } = 2f;
+        public int health { get; set; } = 50;
 
-        public int _xpValue { get; set; } = 5;
+        public int xpValue { get; set; } = 5;
 
         public Mob(int screenWidth, int screenHeight)
         {
@@ -27,31 +27,31 @@ namespace ZombieSurvivor.Model
             switch (side)
             {
                 case 0:
-                    _x = GlobalHelpers.alea.Next(0, screenWidth - Width);
-                    _y = -Height;
+                    x = GlobalHelpers.alea.Next(0, screenWidth - Width);
+                    y = -Height;
                     break;
 
                 case 1:
-                    _x = screenWidth;
-                    _y = GlobalHelpers.alea.Next(0, screenHeight -  Height);
+                    x = screenWidth;
+                    y = GlobalHelpers.alea.Next(0, screenHeight -  Height);
                     break;
 
                 case 2:
-                    _x = GlobalHelpers.alea.Next(0, screenWidth - Width);
-                    _y = screenHeight;
+                    x = GlobalHelpers.alea.Next(0, screenWidth - Width);
+                    y = screenHeight;
                     break;
 
                 case 3:
-                    _x = -Width;
-                    _y = GlobalHelpers.alea.Next(0, screenHeight - Height);
+                    x = -Width;
+                    y = GlobalHelpers.alea.Next(0, screenHeight - Height);
                     break;
             }
         }
 
         public void MoveTowards(float targetX, float targetY)
         {
-            float dx = targetX - _x;
-            float dy = targetY - _y;
+            float dx = targetX - x;
+            float dy = targetY - y;
             float length = (float)Math.Sqrt(dx * dx + dy * dy);
 
             if (length > 0)
@@ -60,48 +60,48 @@ namespace ZombieSurvivor.Model
                 dy /= length;
             }
 
-            _x += dx * _speed;
-            _y += dy * _speed;
+            x += dx * speed;
+            y += dy * speed;
         }
 
         public void TakeDamage(float damage)
         {
-            _health -= (int)damage;
+            health -= (int)damage;
         }
 
         public void ClampToScreen(int screenWidth, int screenHeight)
         {
-            if (_x < 0) _x = 0;
-            if (_y < 0) _y = 0;
-            if (_x + Width > screenWidth) _x = screenWidth - Width;
-            if (_y + Height > screenHeight) _y = screenHeight - Height;
+            if (x < 0) x = 0;
+            if (y < 0) y = 0;
+            if (x + Width > screenWidth) x = screenWidth - Width;
+            if (y + Height > screenHeight) y = screenHeight - Height;
         }
 
         public void ClampAgainstObstacles(List<Obstacle> obstacles)
         {
             foreach (var obs in obstacles)
             {
-                if (_x < obs._x + obs.Width &&
-                    _x + Width > obs._x &&
-                    _y < obs._y + obs.Height &&
-                    _y + Height > obs._y)
+                if (x < obs.x + obs.Width &&
+                    x + Width > obs.x &&
+                    y < obs.y + obs.Height &&
+                    y + Height > obs.y)
                 {
-                    float overlapX = Math.Min(_x + Width - obs._x, obs._x + obs.Width - _x);
-                    float overlapY = Math.Min(_y + Height - obs._y, obs._y + obs.Height - _y);
+                    float overlapX = Math.Min(x + Width - obs.x, obs.x + obs.Width - x);
+                    float overlapY = Math.Min(y + Height - obs.y, obs.y + obs.Height - y);
 
                     if (overlapX < overlapY)
                     {
-                        if (_x + Width / 2 < obs._x + obs.Width / 2)
-                            _x -= overlapX;
+                        if (x + Width / 2 < obs.x + obs.Width / 2)
+                            x -= overlapX;
                         else
-                            _x += overlapX;
+                            x += overlapX;
                     }
                     else
                     {
-                        if (_y + Height / 2 < obs._y + obs.Height / 2)
-                            _y -= overlapY;
+                        if (y + Height / 2 < obs.y + obs.Height / 2)
+                            y -= overlapY;
                         else
-                            _y += overlapY;
+                            y += overlapY;
                     }
                 }
             }

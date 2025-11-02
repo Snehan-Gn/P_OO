@@ -15,23 +15,23 @@ namespace ZombieSurvivor.Model
 
         public RangedMob(int worldWidth, int worldHeight) : base(worldWidth, worldHeight)
         {
-            _health = 30;
-            _speed = 1.5f;
-            _xpValue = 8;
+            health = 30;
+            speed = 1.5f;
+            xpValue = 8;
         }
 
         public void Update(Player player, List<Bullet> bullets, float deltaTime)
         {
-            float dx = player._x + player._width / 2 - (_x + Width / 2);
-            float dy = player._y + player._height / 2 - (_y + Height / 2);
+            float dx = player.x + player.width / 2 - (x + Width / 2);
+            float dy = player.y + player.height / 2 - (y + Height / 2);
             float distance = (float)Math.Sqrt(dx * dx + dy * dy);
 
             if (distance > minDistance)
             {
                 float moveX = dx / distance;
                 float moveY = dy / distance;
-                _x += moveX * _speed;
-                _y += moveY * _speed;
+                x += moveX * speed;
+                y += moveY * speed;
             }
 
             shootingCooldown -= deltaTime;
@@ -42,8 +42,8 @@ namespace ZombieSurvivor.Model
                 float dirY = dy / distance;
 
                 bullets.Add(new Bullet(
-                    _x + Width / 2,
-                    _y + Height / 2,
+                    x + Width / 2,
+                    y + Height / 2,
                     dirX * bulletSpeed,
                     dirY * bulletSpeed,
                     8,

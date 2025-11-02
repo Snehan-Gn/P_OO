@@ -8,17 +8,17 @@ namespace ZombieSurvivor.Model
 {
     public partial class Player
     {
-        public float _x { get; set; }
-        public float _y { get; set; }
+        public float x { get; set; }
+        public float y { get; set; }
 
-        public int _width { get; set; } = 32;
-        public int _height { get; set; } = 32;
+        public int width { get; set; } = 32;
+        public int height { get; set; } = 32;
 
-        public float _speed { get; set; } = 5f;
-        public int _health { get; set; }
-        public int _level { get; set; } = 1;
-        public int _xp { get; set; } = 0;
-        public int _xp_require { get; set; } = 100;
+        public float speed { get; set; } = 5f;
+        public int health { get; set; }
+        public int level { get; set; } = 1;
+        public int xp { get; set; } = 0;
+        public int xp_require { get; set; } = 100;
 
         private bool _isDashing = false;
         private float _dashSpeed = 15f;
@@ -35,20 +35,20 @@ namespace ZombieSurvivor.Model
         public List<Bullet> Bullets = new List<Bullet>();
         public List<Beam> _beams = new List<Beam>();
 
-        public float _dirX { get; private set; } = 0f;
-        public float _dirY { get; private set; } = -1f;
+        public float dirX { get; private set; } = 0f;
+        public float dirY { get; private set; } = -1f;
 
         public Player(float x, float y, int health)
         {
-            _x = x;
-            _y = y;
-            _health = 100;
+            this.x = x;
+            this.y = y;
+            this.health = 100;
         }
 
         public void Move(float deltaX, float deltaY)
         {
-            _x += deltaX;
-            _y += deltaY;
+            x += deltaX;
+            y += deltaY;
         }
 
         public void Update(bool moveUp, bool moveDown, bool moveLeft, bool moveRight, bool dash, float deltaTime)
@@ -56,16 +56,16 @@ namespace ZombieSurvivor.Model
             float deltaX = 0;
             float deltaY = 0;
 
-            if (moveLeft) deltaX -= _speed;
-            if (moveRight) deltaX += _speed;
-            if (moveUp) deltaY -= _speed;
-            if (moveDown) deltaY += _speed;
+            if (moveLeft) deltaX -= speed;
+            if (moveRight) deltaX += speed;
+            if (moveUp) deltaY -= speed;
+            if (moveDown) deltaY += speed;
 
             if (deltaX != 0 || deltaY != 0)
             {
                 float length = (float)Math.Sqrt(deltaX * deltaX + deltaY * deltaY);
-                _dirX = deltaX / length;
-                _dirY = deltaY / length;
+                dirX = deltaX / length;
+                dirY = deltaY / length;
             }
 
             if (dash && !_isDashing && _cooldownTimer <= 0 && (deltaX != 0 || deltaY != 0))
@@ -105,72 +105,72 @@ namespace ZombieSurvivor.Model
 
         public void TakeDamage(int damage)
         {
-            _health -= damage;
-            if (_health < 0) _health = 0;
+            health -= damage;
+            if (health < 0) health = 0;
         }
 
         public bool IsColliding(Mob mob)
         {
-            return _x < mob._x + mob.Width &&
-                   _x + _width > mob._x &&
-                   _y < mob._y + mob.Height &&
-                   _y + _height > mob._y;
+            return x < mob.x + mob.Width &&
+                   x + width > mob.x &&
+                   y < mob.y + mob.Height &&
+                   y + height > mob.y;
         }
 
         public void Shoot(float deltaTime)
         {
             foreach (var weapon in Weapons)
-                weapon.Shoot(_x + _width / 2, _y + _height / 2, Bullets, deltaTime, _dirX, _dirY, _beams);
+                weapon.Shoot(x + width / 2, y + height / 2, Bullets, deltaTime, dirX, dirY, _beams);
         }
 
         public void LevelUp(int _xp_to_add)
         {
-            _xp += _xp_to_add;
-            if (_xp >= _xp_require)
+            xp += _xp_to_add;
+            if (xp >= xp_require)
             {
-                _level++;
-                _xp -= _xp_require;
-                _health += 20;
+                level++;
+                xp -= xp_require;
+                health += 20;
 
                 foreach (var weapon in Weapons)
                 {
-                    weapon._damage += 5;
+                    weapon.damage += 5;
                 }
             }
         }
         public void ClampToWorld(int worldWidth, int worldHeight)
         {
-            if (_x < 0) _x = 0;
-            if (_y < 0) _y = 0;
-            if (_x + _width > worldWidth) _x = worldWidth - _width;
-            if (_y + _height > worldHeight) _y = worldHeight - _height;
+            if (x < 0) x = 0;
+            if (y < 0) y = 0;
+            if (x + width > worldWidth) x = worldWidth - width;
+            if (y + height > worldHeight) y = worldHeight - height;
         }
 
         public void ClampAgainstObstacles(List<Obstacle> obstacles)
         {
             foreach (var obs in obstacles)
             {
-                if (_x < obs._x + obs.Width &&
-                    _x + _width > obs._x &&
-                    _y < obs._y + obs.Height &&
-                    _y + _height > obs._y)
+                if (x < obs.x + obs.Width &&
+                    x + width > obs.x &&
+                    y < obs.y + obs.Height &&
+                    y + height > obs.y)
                 {
-                    float overlapX = Math.Min(_x + _width - obs._x, obs._x + obs.Width - _x);
-                    float overlapY = Math.Min(_y + _height - obs._y, obs._y + obs.Height - _y);
+                    float overlapX = Math.Min(x + width - obs.x, obs.x + obs.Width - x);
+                    float overlapY = Math.Min(y + height - obs.y, obs.y + obs.Height - y);
 
                     if (overlapX < overlapY)
                     {
-                        if (_x + _width / 2 < obs._x + obs.Width / 2)
-                            _x -= overlapX;
+                        if (x + width / 2 < obs.x + obs.Width / 2)
+                            x -= overlapX;
                         else
-                            _x += overlapX;
+                            x += overlapX;
                     }
                     else
                     {
-                        if (_y + _height / 2 < obs._y + obs.Height / 2)
-                            _y -= overlapY;
+                        if (y + height / 2 < obs.y + obs.Height / 2)
+                            y -= overlapY;
                         else
-                            _y += overlapY;
+                            y += overlapY;
                     }
                 }
             }
