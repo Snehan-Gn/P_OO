@@ -295,7 +295,7 @@ namespace ZombieSurvivor
             g.FillRectangle(Brushes.LightBlue, barX, xpBarY, xpWidth, barHeight);
             g.DrawRectangle(Pens.Black, barX, xpBarY, barWidth, barHeight);
 
-            g.DrawString("Contrôles: WASD pour se déplacer", this.Font, Brushes.Yellow, 10, 10);
+            g.DrawString("Contrôles: WASD pour se déplacer et Espace pour le dash", this.Font, Brushes.Yellow, 10, 10);
 
             string topRightTimeText = $"Time: {Math.Floor(gameTime)}s";
             string topRightScoreText = $"Score: {score}";
