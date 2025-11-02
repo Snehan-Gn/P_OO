@@ -48,3 +48,17 @@ Les quatre périodes des dispositions. La semaine prochaine ne suffiront certain
 
 Je pourrais toutefois vous accorder un délai supplémentaire si l'avance durant ce temps est significative et vous rapproche suffisamment du but.
  La priorité est à mettre sur le fonctionnel. L'aspect visuel est secondaire.
+
+ ## Final
+
+livraison, impeccable
+
+votre diagramme UML pourrait être grandement amélioré. La première chose : inutile de montrer l'héritage de la classe Object. Cela crée des contraintes graphiques et cela n'apporte pas beaucoup d'informations, ce d'autant que toute classe en C# hérite automatiquement d'Object. Si on veut vraiment mentionner cet héritage, il serait beaucoup plus simple de simplement l'écrire en dessous du diagramme. 
+
+Du moment que vous utilisez Word pour rédiger votre rapport, mettez systématiquement une entête et un pied de page
+
+Mais globalement, votre rapport est bon.
+
+Le graphisme du jeu est minimal, mais les fonctionnalités demandées sont présentes.
+
+Je valide votre projet.
