@@ -12,7 +12,7 @@ namespace ZombieSurvivor.Model
         public float _y;
         public int Width = 32;
         public int Height = 32;
-        public int _health = 20;
+        public int _health = 80;
 
         public bool IsDestroyed => _health <= 0;
 

@@ -24,6 +24,10 @@ namespace ZombieSurvivor
         private float damageCooldown = 0f;
         private float damageInterval = 0.5f;
 
+        private float gameTime = 0f;
+        private bool gameOver = false;
+        private int score = 0;
+
         private bool keyW = false;
         private bool keyS = false;
         private bool keyA = false;
@@ -38,20 +42,37 @@ namespace ZombieSurvivor
 
         private void InitializeGame()
         {
+            gameTimer?.Stop();
+            gameTimer?.Dispose();
+            mobs.Clear();
+            enemyBullets.Clear();
+            obstacles.Clear();
+            pickups.Clear();
+
+            gameOver = false;
+            gameTime = 0f;
+            score = 0;
+            mobSpawnTimer = 0f;
+            damageCooldown = 0f;
+
             player = new Player(worldWidth / 2, worldHeight / 2, 100);
+            player.Weapons.Clear();
             player.Weapons.Add(new Gun());
-            player.Weapons.Add(new DiagonalLaserBeamGun());
+            //player.Weapons.Add(new DiagonalLaserBeamGun());
+            player.Bullets.Clear();
+            player._beams.Clear();
 
             Random rand = new Random();
             for (int i = 0; i < 5; i++)
             {
-                float ox = rand.Next(0, 2000); 
-                float oy = rand.Next(0, 2000); 
+                float ox = rand.Next(0, worldWidth - 64);
+                float oy = rand.Next(0, worldHeight - 64);
                 obstacles.Add(new Obstacle(ox, oy));
             }
 
             gameTimer = new System.Windows.Forms.Timer();
             gameTimer.Interval = 16;
+            gameTimer.Tick -= GameTimer_Tick;
             gameTimer.Tick += GameTimer_Tick;
             gameTimer.Start();
         }
@@ -59,6 +80,9 @@ namespace ZombieSurvivor
         private void GameTimer_Tick(object sender, EventArgs e)
         {
             float deltaTime = gameTimer.Interval / 1000f;
+
+            if (gameOver) return;
+            gameTime += deltaTime;
 
             damageCooldown -= deltaTime;
 
@@ -150,6 +174,7 @@ namespace ZombieSurvivor
                         {
                             mobs.Remove(mob);
                             player.LevelUp(mob._xpValue);
+                            score++;
                         }
                         break;
                     }
@@ -173,6 +198,14 @@ namespace ZombieSurvivor
                         break;
                     }
                 }
+            }
+
+            if (player._health <= 0)
+            {
+                gameOver = true;
+                gameTimer.Stop();
+                Invalidate();
+                return;
             }
 
             foreach (var p in pickups.ToList())
@@ -204,25 +237,14 @@ namespace ZombieSurvivor
 
         private void Map_Paint(object sender, PaintEventArgs e)
         {
-            int barWidth = 200;
-            int barHeight = 20;
-            int barX = 10;
-            int healthBarY = 40;
-            int xpBarY = 60;
-
-            float healthPercent = (float)player._health / 100f;
-            int healthWidth = (int)(barWidth * healthPercent);
-
-            float xpPercent = (float)player._xp / 100f;
-            int xpWidth = (int)(barWidth * xpPercent);
-
             Graphics g = e.Graphics;
+
             g.Clear(Color.DarkBlue);
 
             foreach (var mob in mobs)
             {
                 if (mob is RangedMob)
-                    g.FillRectangle(Brushes.OrangeRed, mob._x - cameraX, mob._y - cameraY, mob.Width, mob.Height);
+                    g.FillRectangle(Brushes.Purple, mob._x - cameraX, mob._y - cameraY, mob.Width, mob.Height);
                 else
                     g.FillRectangle(Brushes.Red, mob._x - cameraX, mob._y - cameraY, mob.Width, mob.Height);
             }
@@ -241,6 +263,30 @@ namespace ZombieSurvivor
                     g.DrawLine(p, beam._startX - cameraX, beam._startY - cameraY, beam._endX - cameraX, beam._endY - cameraY);
             }
 
+            using (Brush obsBrush = new SolidBrush(Color.Yellow))
+            {
+                foreach (var obs in obstacles)
+                    g.FillRectangle(obsBrush, obs._x - cameraX, obs._y - cameraY, obs.Width, obs.Height);
+            }
+
+            using (Brush pickupBrush = new SolidBrush(Color.Green))
+            {
+                foreach (var p in pickups)
+                    g.FillRectangle(pickupBrush, p._x - cameraX, p._y - cameraY, p._size, p._size);
+            }
+
+            int barWidth = 200;
+            int barHeight = 20;
+            int barX = 10;
+            int healthBarY = 40;
+            int xpBarY = 60;
+
+            float healthPercent = (float)player._health / 100f;
+            int healthWidth = (int)(barWidth * healthPercent);
+
+            float xpPercent = (float)player._xp / 100f;
+            int xpWidth = (int)(barWidth * xpPercent);
+
             g.FillRectangle(Brushes.Red, barX, healthBarY, barWidth, barHeight);
             g.FillRectangle(Brushes.Green, barX, healthBarY, healthWidth, barHeight);
             g.DrawRectangle(Pens.Black, barX, healthBarY, barWidth, barHeight);
@@ -251,18 +297,54 @@ namespace ZombieSurvivor
 
             g.DrawString("Contrôles: WASD pour se déplacer", this.Font, Brushes.Yellow, 10, 10);
 
-            using (Brush obsBrush = new SolidBrush(Color.Brown))
-            {
-                foreach (var obs in obstacles)
-                    g.FillRectangle(obsBrush, obs._x - cameraX, obs._y - cameraY, obs.Width, obs.Height);
-            }
+            string topRightTimeText = $"Time: {Math.Floor(gameTime)}s";
+            string topRightScoreText = $"Score: {score}";
+            SizeF timeSize = g.MeasureString(topRightTimeText, this.Font);
+            SizeF scoreSize = g.MeasureString(topRightScoreText, this.Font);
+            float margin = 10f;
+            float x = ClientSize.Width - Math.Max(timeSize.Width, scoreSize.Width) - margin;
 
-            using (Brush pickupBrush = new SolidBrush(Color.Green))
+            g.DrawString(topRightTimeText, this.Font, Brushes.White, x, 10);
+            g.DrawString(topRightScoreText, this.Font, Brushes.White, x, 30);
+
+            if (player._health <= 0)
             {
-                foreach (var p in pickups)
-                    g.FillRectangle(pickupBrush, p._x - cameraX, p._y - cameraY, p._size, p._size); 
+                string lostText = "YOU LOST";
+                string lostTimeText = $"Time: {Math.Floor(gameTime)}s";
+                string lostScoreText = $"Score: {score}";
+                string restartText = "Press R to Restart";
+
+                Font bigFont = new Font(this.Font.FontFamily, 48, FontStyle.Bold);
+                Font mediumFont = new Font(this.Font.FontFamily, 22, FontStyle.Bold);
+                Font smallFont = new Font(this.Font.FontFamily, 14, FontStyle.Regular);
+
+                SizeF lostSize = g.MeasureString(lostText, bigFont);
+                SizeF lostTimeSize = g.MeasureString(lostTimeText, mediumFont);
+                SizeF lostScoreSize = g.MeasureString(lostScoreText, mediumFont);
+                SizeF lostRestartSize = g.MeasureString(restartText, smallFont);
+
+                float centerX = ClientSize.Width / 2f;
+                float centerY = ClientSize.Height / 2f;
+
+                g.FillRectangle(new SolidBrush(Color.FromArgb(180, 0, 0, 0)), 0, 0, ClientSize.Width, ClientSize.Height);
+
+                using (Brush redBrush = new SolidBrush(Color.Red))
+                using (Brush whiteBrush = new SolidBrush(Color.White))
+                using (Brush yellowBrush = new SolidBrush(Color.Yellow))
+                {
+                    g.DrawString(lostText, bigFont, redBrush, centerX - lostSize.Width / 2, centerY - lostSize.Height - 60);
+                    g.DrawString(lostScoreText, mediumFont, whiteBrush, centerX - lostScoreSize.Width / 2, centerY - lostScoreSize.Height / 2);
+                    g.DrawString(lostTimeText, mediumFont, whiteBrush, centerX - lostTimeSize.Width / 2, centerY + lostScoreSize.Height / 2 + 10);
+                    g.DrawString(restartText, smallFont, yellowBrush, centerX - lostRestartSize.Width / 2, centerY + lostTimeSize.Height + 60);
+                }
+
+                bigFont.Dispose();
+                mediumFont.Dispose();
+                smallFont.Dispose();
+                return;
             }
         }
+
 
         private void Map_KeyDown(object sender, KeyEventArgs e)
         {
@@ -282,6 +364,10 @@ namespace ZombieSurvivor
                     break;
                 case Keys.Space:
                     dash = true;
+                    break;
+                case Keys.R:
+                    if (gameOver)
+                        InitializeGame();
                     break;
             }
         }
