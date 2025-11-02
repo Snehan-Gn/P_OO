@@ -7,7 +7,9 @@
     "\\ZombiesSurvivors\\Drones\\Model",
     "\\ZombiesSurvivors\\Drones\\Properties",
     "\\ZombiesSurvivors\\Drones\\Resources",
-    "\\ZombiesSurvivors\\Drones\\View"
+    "\\ZombiesSurvivors\\Drones\\View",
+    "\\ZombieSurvivors",
+    "\\ZombieSurvivors\\ZombieSurvivors"
   ],
   "SelectedNode": "\\ZombiesSurvivors\\Drones",
   "PreviewInSolutionExplorer": false
